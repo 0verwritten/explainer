@@ -1,16 +1,5 @@
-# FROM rust as builder
-
-# WORKDIR /app
-
-# COPY . .
-
-# RUN cargo build --release --target x86_64-unknown-linux-musl
-
-# FROM alpine
-
-# COPY --from=builder /app/target/release/expnamination_runner .
-
-# ENTRYPOINT [ "expnamination_runner" ]
+# run this command beforehand: 
+# docker run --rm -it -v "$(pwd)":/home/rust/src ekidd/rust-musl-builder cargo build --release
 
 FROM alpine
 
