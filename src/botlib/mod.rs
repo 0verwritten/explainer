@@ -1,4 +1,3 @@
-use reqwest::Body;
 // use crate::botlib::InlineQueryResult;
 pub mod datatypes;
 // use crate::datatypes::*;
@@ -7,15 +6,10 @@ include!("datatypes.rs");
 
 use colored::*;
 use std::collections::HashMap;
-use std::future::Future;
-use std::hash::{Hash, Hasher};
 use std::thread;
 use std::sync::Arc;
-use std::io::{ Cursor, Read, Write };
-use bytes::Bytes;
-use reqwest::multipart;
 use reqwest::multipart::{ Form, Part };
-use std::fs::File;
+
 
 pub struct Telebotapi {
     api: String,
@@ -96,8 +90,6 @@ impl Telebotapi {
                 }
             }
         }
-
-        Ok(())
     }
 
     pub fn add_handler(&mut self, message: MessageType, func: fn(String, Arc<BotUpdate>) -> ()) {
@@ -116,11 +108,11 @@ impl Telebotapi {
     }
     pub async fn send_voice(api: String, chat_id: u64, voice: Vec<u8>, caption: &str, parse_mode: Option<&str>, reply_markup: Option<ReplyMarkup>) -> Result<(), BotError> {
         if voice.len() == 0 {
-            Telebotapi::send_text(api, chat_id, caption, parse_mode, true, false, false, true, reply_markup).await;
+            Telebotapi::send_text(api, chat_id, caption, parse_mode, true, false, false, true, reply_markup).await.unwrap();
 
             return Ok(());
         }
-        let responce  = reqwest::Client::new().post(format!("https://api.telegram.org/bot{}/sendVoice", api))
+        let _responce  = reqwest::Client::new().post(format!("https://api.telegram.org/bot{}/sendVoice", api))
                 .multipart( Form::new()
                                 .text("chat_id", chat_id.to_string())
                                 .text("caption", caption.to_string())
@@ -131,7 +123,7 @@ impl Telebotapi {
     }
 
     pub async fn send_audio(api: String, chat_id: u64, audio: &str, caption: &str, parse_mode: Option<&str>) -> Result<(), BotError> {
-        let responce  = reqwest::Client::new().post(format!("https://api.telegram.org/bot{}/sendAudio", api))
+        let _responce  = reqwest::Client::new().post(format!("https://api.telegram.org/bot{}/sendAudio", api))
                 .multipart( Form::new()
                                 .text("chat_id", chat_id.to_string())
                                 .text("caption", caption.to_string())
@@ -260,7 +252,7 @@ macro_rules! inline_query {
 }
 
 impl ReplyMarkup{
-    pub fn InlineKeyboardMarkup(keys: Vec<Vec<(String, String)>>) -> ReplyMarkup{
+    pub fn inline_keyboard_markup(keys: Vec<Vec<(String, String)>>) -> ReplyMarkup{
         ReplyMarkup::InlineKeyboard(InlineKeyboardMarkup{
             inline_keyboard: keys.into_iter().map( |arr| arr.into_iter().map( |(text, callback_data)| InlineKeyboardButton{ text: text, callback_data: Some(callback_data), url: None} ).collect() ).collect()
         })

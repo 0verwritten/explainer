@@ -1,7 +1,8 @@
 use std::fmt::{ Formatter, Display };
 use serde::{Deserialize, Serialize};
-use bytes::Bytes;
+// use bytes::Bytes;
 use std::io::{Error, Cursor, ErrorKind, Read};
+// use std::env::var;
 
 #[derive(Serialize, Deserialize, Debug)]
 struct WordMeta {id: String, offensive:bool}
@@ -29,7 +30,7 @@ pub struct WordFinder{
 }
 
 impl WordFinder {
-    pub async fn new(api: &str, word: &str) -> Result<WordFinder, Vec<String>> {
+    pub async fn new(api: String, word: &str) -> Result<WordFinder, Vec<String>> {
         if word.is_empty() { 
             /*return Err(String::from("no word no definition"))*/
             return Err( vec![] )
@@ -109,3 +110,18 @@ impl Display for WordFinder{
         Ok(())
     }
 }
+
+#[macro_export]
+    macro_rules! search_word_def {
+        ($word: expr) => {
+            {
+                let api = var("DICTIONARY_API").expect("No dictionary api key found ( with variable name of \"DICTIONARY_API\" )");
+                WordFinder::new( api, $word )
+            }
+        };
+        ($api: expr, $word: expr) => {
+            {
+                WordFinder::new($api, $word)
+            }
+        }
+    }
